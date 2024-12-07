@@ -13,10 +13,10 @@ summary(m1)
 m2 <- lm(mass ~ sex + hornR + month + yr + daynr + cohort + hornL + density, data = dat)
 summary(m2) #all significant!
 m <- lm(mass ~ sex + month + yr + daynr + cohort + hornL + density, data = dat)
-summary(m) 
-model <- lm(mass ~ sex + hornL + density + cohort, na.rm=T, data = dat)
+summary(m) #all varaibles significant
+model <- lm(mass ~ sex + hornL + density + cohort, na.rm=T, data = dat) #choosing to remove varaibles that don not seem biologically important
 summary(model)
-#checking which model is best
+#checking which model is best based on AIC and Weight
 model1 <- lm(mass ~ sex + hornL + density + cohort, data = dat) 
 model2 <- lm(mass ~ sex + hornL + cohort, data = dat)        
 model3 <- lm(mass ~ sex + density + cohort, data = dat)    
@@ -39,7 +39,7 @@ AIC_table$weight <- round(likelihood / sum(likelihood), 2)
 print(AIC_table)
 
 library(glmmTMB)
-model_glmmTMB <- glmmTMB(mass ~ sex + hornL + density + (1|cohort), data = dat)
+model_glmmTMB <- glmmTMB(mass ~ sex + hornL + density + (1|cohort), data = dat) #general linear mixed model
 #comparing mixed models:
 m1 <- glmmTMB(mass ~ hornL * sex + density + (1 | cohort), data = dat, REML = FALSE)  
 m2 <- glmmTMB(mass ~ hornL + sex + density + (1 | cohort), data = dat, REML = FALSE) 
@@ -58,7 +58,7 @@ print(AIC_fixed_table)
 library(Matrix)
 library(glmmTMB)
 str(dat)
-Mixed_Model <- glmmTMB(mass ~ hornL * sex + density + (1 | cohort), data = dat, REML = TRUE)
+Mixed_Model <- glmmTMB(mass ~ hornL * sex + density + (1 | cohort), data = dat, REML = TRUE) #Final model
 summary(Mixed_Model)
 
 coef(Mixed_Model) #all years
@@ -67,7 +67,7 @@ library(MuMIn)
 r_squared_Mixed_Model <- r.squaredGLMM(Mixed_Model)# Marginal R²: The proportion of variance explained by the fixed effects:0.536
 r_squared_Mixed_Model
 #Conditional R²: The proportion of variance explained by both the fixed effects and the random effects: 0.547
-#Do this  upstarirs for every one, remobing one factor at a time, take minus to know the variance explained by it
+#Do this for every varaible, removing one factor at a time, take minus to know the variance explained by it
 M_density <- glmmTMB(mass ~ hornL * sex + (1 | cohort), data = dat, REML = TRUE)
 r_squared_M_density <- r.squaredGLMM(M_density) # 0.524%
 r_squared_M_density
@@ -90,7 +90,7 @@ min_mass <- min(dat$mass, na.rm = TRUE)#43
 max_mass <- max(dat$mass, na.rm = TRUE) #5
 sd_mass <- sd(dat$mass, na.rm = TRUE) #5.39
 sem_mass <- sd_mass / sqrt(length(na.omit(dat$mass))) #standard error: 0.0813
-#massF
+#mass females
 dat_females <- dat %>% filter(sex == "F")
 n_female_mass <- length(na.omit(dat_females$mass)) #1955 
 mean_female_mass <- mean(dat_females$mass, na.rm = TRUE) #20.6
@@ -98,7 +98,7 @@ min_female_mass <- min(dat_females$mass, na.rm = TRUE) #6.5
 max_female_mass <- max(dat_females$mass, na.rm = TRUE)#35
 sd_female_mass <- sd(dat_females$mass, na.rm = TRUE) #4.05
 sem_female_mass <- sd_female_mass / sqrt(n_female_mass) #0.0915
-#massM
+#mass males
 dat_males <- dat %>% filter(sex == "M")
 n_male_mass <- length(na.omit(dat_males$mass)) #2439 
 mean_male_mass <- mean(dat_males$mass, na.rm = TRUE) #23.7
@@ -126,7 +126,7 @@ max_male_hornL <- max(dat_males$hornL, na.rm = TRUE) #295
 sd_male_hornL <- sd(dat_males$hornL, na.rm = TRUE) # 43.5
 sem_male_hornL <- sd_male_hornL / sqrt(length(na.omit(dat_males$hornL))) #0.880
 
-#density
+# Density
 dat$density <- ifelse(dat$density == "low", 0, ifelse(dat$density == "high", 1, NA)) #low=0 high=1
 summary(dat$density)
 mean_density <- mean(dat$density, na.rm = TRUE) #0.514
@@ -151,7 +151,7 @@ ggplot(summary_data, aes(x = factor(Cohort), y = Count, fill = Sex)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
   scale_fill_manual(values = c("F" = "salmon", "M" = "skyblue"))
 
-#Figure: Horn length & body bass by sex
+#Figure: Horn length & body mass by sex
 ggplot(dat, aes(x = hornL, y = mass, color = sex)) +
   geom_point(alpha = 0.7) + 
   geom_smooth(method = "lm", se = FALSE, aes(color = sex)) + 
@@ -165,9 +165,9 @@ ggplot(dat, aes(x = hornL, y = mass, color = sex)) +
 #Figure: Horn length & body mass by density
 dat$density <- as.factor(dat$density)
 ggplot(dat, aes(x = hornL, y = mass, color = density)) +
-  geom_point(alpha = 0.7) +                  # Scatter points with transparency
-  geom_smooth(method = "lm", se = TRUE) +   # Add regression lines with confidence intervals
-  scale_color_manual(values = c("darkblue", "6fa3d3")) +  # Custom colors for density
+  geom_point(alpha = 0.7) +               
+  geom_smooth(method = "lm", se = TRUE) +  
+  scale_color_manual(values = c("darkblue", "6fa3d3")) +  
   labs(
     title = "Horn length & body mass by density",
     x = "Horn length (mm)",
