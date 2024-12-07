@@ -5,10 +5,10 @@ numeric_data <- dat[, sapply(dat, is.numeric)]
 pairs.panels(numeric_data)
 chart.Correlation(numeric_data, histogram=TRUE, pch=19) #many histograms to compare
 #model w all variables, remove stepwise nonsignificant
-Saturated_model <- lm(mass ~ sex+ hornR+ month + day + yr + daynr + age + cohort + hornL + density, data = dat)
+Saturated_model <- lm(mass ~ sex + hornR + month + day + yr + daynr + age + cohort + hornL + density, data = dat)
 summary(Saturated_model)
 cor(dat[, sapply(dat, is.numeric)], use = "pairwise.complete.obs") #cohort is correlated w season, remove one of them
-m1 <- lm(mass ~ sex+ hornR+ month + day + yr + daynr + cohort + hornL + density, data = dat)
+m1 <- lm(mass ~ sex + hornR + month + day + yr + daynr + cohort + hornL + density, data = dat)
 summary(m1)
 m2 <- lm(mass ~ sex + hornR + month + yr + daynr + cohort + hornL + density, data = dat)
 summary(m2) #all significant!
@@ -39,7 +39,7 @@ AIC_table$weight <- round(likelihood / sum(likelihood), 2)
 print(AIC_table)
 
 library(glmmTMB)
-model_glmmTMB <- glmmTMB(mass ~ sex + hornL + density + (1|cohort), data = dat) #general linear mixed model
+model_glmmTMB <- glmmTMB(mass ~ sex + hornL + density + (1 | cohort), data = dat) #general linear mixed model
 #comparing mixed models:
 m1 <- glmmTMB(mass ~ hornL * sex + density + (1 | cohort), data = dat, REML = FALSE)  
 m2 <- glmmTMB(mass ~ hornL + sex + density + (1 | cohort), data = dat, REML = FALSE) 
@@ -64,9 +64,9 @@ summary(Mixed_Model)
 coef(Mixed_Model) #all years
 
 library(MuMIn)
-r_squared_Mixed_Model <- r.squaredGLMM(Mixed_Model)# Marginal R²: The proportion of variance explained by the fixed effects:0.536
-r_squared_Mixed_Model
+r_squared_Mixed_Model <- r.squaredGLMM(Mixed_Model) # Marginal R²: The proportion of variance explained by the fixed effects:0.536
 #Conditional R²: The proportion of variance explained by both the fixed effects and the random effects: 0.547
+r_squared_Mixed_Model
 #Do this for every varaible, removing one factor at a time, take minus to know the variance explained by it
 M_density <- glmmTMB(mass ~ hornL * sex + (1 | cohort), data = dat, REML = TRUE)
 r_squared_M_density <- r.squaredGLMM(M_density) # 0.524%
