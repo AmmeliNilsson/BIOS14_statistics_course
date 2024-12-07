@@ -1,4 +1,4 @@
-dat = read.table("Data/exam2022_part2-1.txt", header=T) #reading the data
+  dat = read.table("../Data/exam2022_part2-1.txt", header=T) #reading the data
 library(psych)
 library(PerformanceAnalytics)
 numeric_data <- dat[, sapply(dat, is.numeric)]
@@ -97,6 +97,7 @@ qqnorm(residuals(Mixed_Model))
 qqline(residuals(Mixed_Model))
 
 #mass both sexes
+library(dplyr) 
 dat <- dat %>% mutate(sex = factor(sex), density = factor(density))
 n_mass <- length(na.omit(dat$mass)) #Obs: n= 4394
 mean_mass <- mean(dat$mass, na.rm = TRUE) #22.3
@@ -151,7 +152,7 @@ sem_density <- sd_density / sqrt(length(na.omit(dat$density)))#0.007541
 
 library(ggplot2)
 #Figure: Number of chamois collected for each cohort by sex
-dat <- read.table("Data/exam2022_part2-1.txt", header = TRUE)
+dat <- read.table("../Data/exam2022_part2-1.txt", header = TRUE)
 summary_data <- aggregate(dat$sex, by = list(Cohort = dat$cohort, Sex = dat$sex), FUN = length)
 colnames(summary_data) <- c("Cohort", "Sex", "Count")
 library(ggplot2)
